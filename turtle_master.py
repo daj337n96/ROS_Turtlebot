@@ -268,6 +268,7 @@ def master(goals=[]):
 				elif (goal_edit_times%4) == 1:
 					goal_x -= 0.1 * (multi+1)
 				elif (goal_edit_times%4) == 2:
+					goal_x += 0.1 * multi
 					goal_y += 0.1 * multi
 				elif (goal_edit_times%4) == 3:
 					goal_y += 0.1 * (multi+1)

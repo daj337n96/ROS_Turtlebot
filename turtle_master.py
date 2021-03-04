@@ -241,38 +241,57 @@ def master(goals=[]):
 				update_goalpoint = False
 				need_path = True # generate new path and targets (trajectory)
 				
+			if check_distance_reverse: # check if close enough to target
+				Di = target_x - msg_motion.x
+				Dj = target_y - msg_motion.y
+				if Di*Di + Dj*Dj <= CLOSE_ENOUGH_SQ: # if target reached
+					next_reverse_point = True
+					check_distance_reverse = False
+				
 			if reverse_motion:
-				print('\n-----reversing paths-----')
-				length_previous = len(previous_x)
-				if length_previous!= 0:
-					target_x = previous_x[length_previous-1]
-					target_y = previous_y[length_previous-1]
-					previous_x = previous_x[:-1]
-					previous_y = previous_y[:-1]
-					msg_target_position.x = target_x
-					msg_target_position.y = target_y
-					pub_target.publish(msg_target) # publish new target
+				if next_reverse_point:
+					print('\n-----reversing paths-----')
+					length_previous = len(previous_x)
+
+					if length_previous!= 0:
+						target_x = previous_x[length_previous-1]
+						target_y = previous_y[length_previous-1]
+						previous_x = previous_x[:-1]
+						previous_y = previous_y[:-1]
+						msg_target_position.x = target_x
+						msg_target_position.y = target_y
+						pub_target.publish(msg_target) # publish new target
+						next_reverse_point = False
+				check_distance_reverse = True
 					
-				while Di*Di + Dj*Dj >= CLOSE_ENOUGH_SQ:
-					Di = target_x - msg_motion.x
-					Dj = target_y - msg_motion.y
 				need_path = True
 				reverse_motion = False
 				
 			if edit_goal:
 				print('\n-----editing goals-----')
-				multi = int(goal_edit_times/4) + 1
+				multi = int(goal_edit_times/8) + 1
 				
-				if (goal_edit_times%4) == 0:
+				if (goal_edit_times%8) == 0:
 					goal_x += 0.1 * multi
-				elif (goal_edit_times%4) == 1:
-					goal_x -= 0.1 * (multi+1)
-				elif (goal_edit_times%4) == 2:
-					goal_x += 0.1 * multi
+					if multi >= 2:
+						goal_x += 0.1 * (multi-1)
+						goal_y += 0.1 * (multi-1)
+				elif (goal_edit_times%8) == 1:
 					goal_y += 0.1 * multi
-				elif (goal_edit_times%4) == 3:
-					goal_y += 0.1 * (multi+1)
+				elif (goal_edit_times%8) == 2:
+					goal_x -= 0.1 * multi
+				elif (goal_edit_times%8) == 3:
+					goal_x -= 0.1 * multi
+				elif (goal_edit_times%8) == 4:
+					goal_y -= 0.1 * multi
+				elif (goal_edit_times%8) == 5:
+					goal_y -= 0.1 * multi
+				elif (goal_edit_times%8) == 6:
+					goal_x += 0.1 * multi
+				elif (goal_edit_times%8) == 7:
+					goal_x += 0.1 * multi	
 					
+				print(goal_x, goal_y)	
 				goal_edit_times +=1
 				edit_goal = False 
 				

@@ -218,7 +218,7 @@ def master(goals=[]):
 						else:
 							update_goalpoint = True 
 							
-			if update_turnpoint:# get next turn point
+			if update_turnpoint: # get next turn point
 				turnpt = msg_path.poses[turnpt_idx].pose.position            
 				turnpt_x = turnpt.x
 				turnpt_y = turnpt.y
@@ -226,7 +226,7 @@ def master(goals=[]):
 				update_turnpoint=False
 				need_trajectory = True# generate new targets (trajectory)
 				
-			if update_goalpoint:
+			if update_goalpoint: # keeps track of goals reached
 				goal_idx += 1
 
 				if goal_idx == num_goals:# break if no more goals
@@ -248,7 +248,7 @@ def master(goals=[]):
 					next_reverse_point = True
 					check_distance_reverse = False
 				
-			if reverse_motion:
+			if reverse_motion: # reverses the Turtlebot base on stored targets when in an isolation zone
 				if next_reverse_point:
 					print('\n-----reversing paths-----')
 					length_previous = len(previous_x)
@@ -267,14 +267,15 @@ def master(goals=[]):
 				need_path = True
 				reverse_motion = False
 				
-			if edit_goal:
+			if edit_goal: # find the next free cell and update as the new goalpoint 
+				      # note that 0%8 = 0, 1%8 = 1, 8%8 = 0
 				print('\n-----editing goals-----')
 				multi = int(goal_edit_times/8) + 1
 				
 				if (goal_edit_times%8) == 0:
 					goal_x += 0.1 * multi
 					if multi >= 2:
-						goal_x += 0.1 * (multi-1)
+						goal_x -= 0.1 * (multi-1) # compensate for += 0.1 in the previous line
 						goal_y += 0.1 * (multi-1)
 				elif (goal_edit_times%8) == 1:
 					goal_y += 0.1 * multi
